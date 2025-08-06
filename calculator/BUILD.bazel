@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "calculator",
+    srcs = ["src/Calculator.cpp"],
+    hdrs = ["include/Calculator.hpp"],
+    includes = ["include"],
+    # 依赖 fmt
+    deps = ["//third_party/fmt:fmt"],
+    copts = ["-std=c++17"],
+)

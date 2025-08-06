@@ -1,0 +1,4 @@
+# .bazelrc
+build --cxxopt=-std=c++17
+# build --sandbox_debug
+# build --verbose_failures

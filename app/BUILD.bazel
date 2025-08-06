@@ -1,0 +1,44 @@
+# package(default_visibility = ["//visibility:public"])
+
+# cc_binary(
+#     name = "calculator-app",
+#     srcs = [
+#         "main.cpp",
+#         "config.json",  # 数据文件也会被包含
+#     ],
+#     deps = [
+#         "//calculator:calculator",
+#         "//third_party/json:json",
+#     ],
+#     # 确保运行时能找到 config.json
+#     data = ["config.json"],
+# )
+
+# # app/BUILD.bazel
+# package(default_visibility = ["//visibility:public"])
+
+# cc_binary(
+#     name = "calculator-app",
+#     srcs = ["main.cpp"],           # ✅ 只放源代码
+#     deps = [
+#         "//calculator:calculator",
+#         "//third_party/json:json",
+#     ],
+#     data = ["config.json"],        # ✅ 数据文件放这里
+# )
+
+
+# app/BUILD.bazel
+package(default_visibility = ["//visibility:public"])
+
+cc_binary(
+    name = "calculator-app",
+    srcs = ["main.cpp"],
+    deps = [
+        "//calculator:calculator",
+        "//third_party/json:json",
+        # ✅ 正确写法：依赖 runfiles 库
+        "@bazel_tools//tools/cpp/runfiles",
+    ],
+    data = ["config.json"],
+)

@@ -49,3 +49,11 @@ For fish shell completion, link this file into your
   ln -s /home/codespace/.bazel/bin/bazel.fish /home/codespace/.config/fish/completions/bazel.fish
 
 See http://bazel.build/docs/getting-started.html to start a new project!
+
+# 运行服务
+
+# 构建应用
+bazel build //app:calculator-app
+
+# 运行（Bazel 会自动处理 data 依赖）
+bazel run //app:calculator-app

@@ -1,0 +1,10 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "fmt",
+    hdrs = ["fmt.hpp"],
+    # 允许包含根目录
+    includes = ["."],
+    # 声明这是一个头文件库
+    strip_include_prefix = ".",
+)
