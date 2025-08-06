@@ -1,0 +1,1 @@
+/usr/bin/c++ "CMakeFiles/calculator-app.dir/main.cpp.o" "CMakeFiles/calculator-app.dir/src/Calculator.cpp.o" -o calculator-app 
