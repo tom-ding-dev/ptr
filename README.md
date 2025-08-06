@@ -27,3 +27,25 @@ g++ -Iinclude -std=c++17 -c main.cpp -o main.o
 
 步骤3：链接两个对象文件，生成可执行文件
 g++ Calculator.o main.o -o myapp
+
+# 使用 Bazel 官方安装脚本
+
+Buildifier was not found; linting and formatting of Bazel files will not be available. Please download it from https://github.com/bazelbuild/buildtools/releases and install it on your system PATH or set its location in Settings.
+
+curl -LO "https://github.com/bazelbuild/bazel/releases/download/6.5.0/bazel-6.5.0-installer-linux-x86_64.sh"
+chmod +x bazel-6.5.0-installer-linux-x86_64.sh
+./bazel-6.5.0-installer-linux-x86_64.sh --user
+
+
+Bazel is now installed!
+
+Make sure you have "/home/codespace/bin" in your path.
+
+For bash completion, add the following line to your :
+  source /home/codespace/.bazel/bin/bazel-complete.bash
+
+For fish shell completion, link this file into your
+/home/codespace/.config/fish/completions/ directory:
+  ln -s /home/codespace/.bazel/bin/bazel.fish /home/codespace/.config/fish/completions/bazel.fish
+
+See http://bazel.build/docs/getting-started.html to start a new project!
