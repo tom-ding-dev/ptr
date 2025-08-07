@@ -262,9 +262,36 @@ cc_binary(
 ```
 
 ## 步骤四：部署
+## 步骤五：自动化打包部署产物（tar.gz）
 
+你可以用如下命令自动构建并打包 server、client 和 libzmq.so 到 tar.gz 文件，方便分发和部署：
+
+```sh
+# 1. 构建可执行文件
+bazel build //app:server //app:client
+
+# 2. 打包（在项目根目录下）
+tar -czvf deploy.tar.gz -C bazel-bin/app server client -C ../../third_party/zmq libzmq.so
+```
+
+解压后即可按上文 LD_LIBRARY_PATH 或 rpath 方式运行。
+
+
+### 方式一：设置 LD_LIBRARY_PATH（推荐灵活部署）
 1. 拷贝 `bazel-bin/app/server`、`bazel-bin/app/client` 和 `third_party/zmq/libzmq.so` 到目标环境，保持相对目录结构。
-2. 运行时无需系统安装 ZeroMQ，直接运行即可。
+2. 运行时设置环境变量：
+   ```sh
+   export LD_LIBRARY_PATH=$(pwd)/third_party/zmq:$LD_LIBRARY_PATH
+   ./app/server
+   # 或一行：
+   LD_LIBRARY_PATH=$(pwd)/third_party/zmq ./app/server
+   ```
+
+### 方式二：rpath（无需环境变量，已在前文介绍）
+1. 构建时在 BUILD 文件 linkopts 设置 rpath，部署时保持相对路径一致即可。
+
+---
+两种方式都被工业界广泛采用，可根据实际场景选择。LD_LIBRARY_PATH 更灵活，rpath 更傻瓜。
 
 ---
 这样即可实现完全自包含、可复现、易部署的现代 C++/Bazel/ZeroMQ 工业化项目！
@@ -275,3 +302,59 @@ cc_binary(
 
 
 
+工业界最常用、最稳妥的跨平台 C++ 第三方库集成方式主要有以下几种：
+
+1. 源码集成 + 本地构建（推荐）
+将第三方库源码（如 ZeroMQ、glog、protobuf 等）下载到项目的 third_party 目录。
+用 CMake、Bazel、Makefile 等主项目构建系统直接编译第三方库，生成 .so 或 .a。
+用 Bazel 的 cc_import 或 CMake 的 add_library/target_link_libraries 方式集成。
+优点：版本可控、跨平台一致、无需目标环境预装依赖，升级/回滚灵活。
+部署：只需分发你的可执行文件和第三方库的 so/a 文件，或静态链接后只分发可执行文件。
+2. 静态链接
+构建时将第三方库编译为 .a 静态库，主程序静态链接。
+优点：最终产物只需一个可执行文件，部署极简。
+缺点：可执行文件体积大，升级第三方库需重新编译。
+3. 动态链接 + rpath
+构建时将第三方库编译为 .so，主程序动态链接，并设置 rpath，如 -Wl,-rpath,$ORIGIN/../third_party/xxx。
+优点：可执行文件小，第三方库可独立升级。
+缺点：部署时需保证 so 文件和可执行文件的相对路径一致。
+4. 包管理器（如 vcpkg、conan、hunter）
+用 vcpkg/conan/hunter 等工具自动下载、编译、集成第三方库。
+优点：依赖声明简单，自动跨平台。
+缺点：有时不如源码集成灵活，部分公司不允许自动联网下载。
+5. 系统包依赖（不推荐生产环境）
+依赖目标环境的 apt/yum/brew 等包管理器安装第三方库。
+优点：开发环境搭建快。
+缺点：生产环境不可控，版本不一致，升级/回滚难。
+推荐实践
+生产环境/跨平台/可复现性要求高：源码集成 + 本地构建（如 Bazel + cc_import + CMake 预编译 so/a）。
+部署极简：静态链接。
+需灵活升级第三方库：动态链接 + rpath。
+团队有统一包管理策略：可用 vcpkg/conan。
+总结：
+将第三方库源码纳入项目，构建出 so/a 并用 Bazel/CMake 集成，是工业界最稳妥、最可控、最易跨平台的 C++ 第三方库集成方式。
+
+如需具体操作示例或自动化脚本，可继续提问！
+
+
+# 本次学习与实践总结
+
+## 实践内容回顾
+
+1. 学习并实践了 Bazel C++ 项目结构、头文件 include 路径规范、BUILD 文件写法、模块化组织等工业级最佳实践。
+2. 下载并集成了 ZeroMQ 和 cppzmq 到 third_party 目录，掌握了第三方库源码集成与本地构建的工业级方案。
+3. 用 CMake 在本地构建 ZeroMQ 的 libzmq.so，并将 so 文件和 include 头文件拷贝到 third_party/zmq。
+4. 用 Bazel 的 cc_import 规则将 libzmq.so 集成到 Bazel 构建系统，cppzmq 头文件同样在 third_party/，并用 cc_library 规则实现 C++ 代码对 ZeroMQ 的依赖。
+5. 在 app/server 和 app/client 的 BUILD 文件中用 linkopts 设置 rpath，保证运行时自动找到本地 so。
+6. 自动化打包 server、client、libzmq.so 到 deploy.zip，实现一键分发和部署。
+7. 在 README.md 中详细记录了所有集成、构建、部署步骤和最佳实践，方便后续复现和团队协作。
+
+## 关键知识点总结
+
+- 工业界最稳妥的 C++ 第三方库集成方式是“源码集成 + 本地构建 + cc_import 动态链接/静态链接”，可实现跨平台、可控、可复现。
+- rpath 配置可让可执行文件自动找到本地 so，只需保证部署包内的相对路径不变。
+- Bazel 的 cc_import 适合集成已编译好的 so/a，源码构建推荐用 CMake 或 Bazel 原生规则。
+- 自动化打包和文档沉淀是工程化项目可维护性的关键。
+
+---
+如需进一步自动化、CI/CD、跨平台适配或其他 C++ 工程化问题，随时可以继续提问！

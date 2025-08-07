@@ -10,7 +10,7 @@ cc_binary(
     name = "server",
     srcs = ["server.cpp"],
     deps = ["//third_party:cppzmq"],
-    linkopts = ["-Wl,-rpath,$$ORIGIN/../third_party/zmq"],
+
 )
 
 
@@ -18,5 +18,5 @@ cc_binary(
     name = "client",
     srcs = ["client.cpp"],
     deps = ["//third_party:cppzmq"],
-    linkopts = ["-Wl,-rpath,$$ORIGIN/../third_party/zmq"],
+
 )
