@@ -49,3 +49,39 @@ For fish shell completion, link this file into your
   ln -s /home/codespace/.bazel/bin/bazel.fish /home/codespace/.config/fish/completions/bazel.fish
 
 See http://bazel.build/docs/getting-started.html to start a new project!
+
+# GPT-4.1 帮助我写代码
+
+现在目录结构是这样的，
+
+```
+@tom-ding-dev ➜ /workspaces/ptr/src (bazel-build-learn-deps) $ tree -L 2
+.
+├── BUILD
+├── hello.cpp
+├── hello.h
+└── main.cpp
+
+1 directory, 4 files
+```
+
+BUILD文件内容是这样的
+
+```
+cc_library(
+    name = "hello",
+    srcs = ["hello.cpp"],
+    hdrs = ["hello.h"],
+)
+
+
+cc_binary(
+    name = "main",
+    srcs = ["main.cpp"],
+    deps = [":hello"],
+)
+```
+
+这样执行：export PATH="$PATH:/home/codespace/bin" && bazel build //src:main 可以通过
+
+# 接下来的尝试，将 hello.h 放到 include 目录下

@@ -1,3 +1,0 @@
-/workspaces/ptr/build/CMakeFiles/calculator-app.dir
-/workspaces/ptr/build/CMakeFiles/edit_cache.dir
-/workspaces/ptr/build/CMakeFiles/rebuild_cache.dir

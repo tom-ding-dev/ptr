@@ -1,2 +1,1 @@
-# WORKSPACE
-workspace(name = "my_calculator_project")
+# Bazel workspace file for ptr project
