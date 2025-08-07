@@ -131,3 +131,75 @@ BUILD - Bazel 构建配置
 6. 如果有第三方依赖，统一放在 third_party/，并用 Bazel 的外部依赖机制管理。
 
 这样你的 include 路径就会非常简洁，项目结构也更易维护。
+  
+
+# Bazel + cppzmq C++ 通信项目复现步骤
+
+本项目已集成 ZeroMQ (libzmq) 和 cppzmq，支持用 Bazel 构建现代 C++ 客户端/服务端通信。
+
+## 依赖准备
+1. 安装 ZeroMQ 系统开发包：
+   ```sh
+   sudo apt-get update && sudo apt-get install -y libzmq3-dev
+   ```
+2. cppzmq 头文件已自动下载到 third_party/cppzmq，无需额外操作。
+
+## Bazel 构建
+1. 构建服务端和客户端：
+   ```sh
+   bazel build //app:server //app:client
+   ```
+2. 运行服务端（新终端）：
+   ```sh
+   ./bazel-bin/app/server
+   ```
+3. 运行客户端（另一个终端）：
+   ```sh
+   ./bazel-bin/app/client
+   ```
+
+## 关键 Bazel 配置说明
+- third_party/BUILD 只暴露 cppzmq 头文件，ZeroMQ 用系统包链接（linkopts = ["-lzmq"]）
+- app/server.cpp 和 app/client.cpp 为最小可用示例
+- 你可以在此基础上扩展更复杂的消息协议和多线程通信
+
+## 参考代码片段
+server.cpp:
+```cpp
+#include <zmq.hpp>
+#include <string>
+#include <iostream>
+
+int main() {
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, zmq::socket_type::rep);
+    socket.bind("tcp://*:5555");
+    while (true) {
+        zmq::message_t request;
+        socket.recv(request, zmq::recv_flags::none);
+        std::cout << "Received: " << request.to_string() << std::endl;
+        std::string reply = "World";
+        socket.send(zmq::buffer(reply), zmq::send_flags::none);
+    }
+}
+```
+client.cpp:
+```cpp
+#include <zmq.hpp>
+#include <string>
+#include <iostream>
+
+int main() {
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, zmq::socket_type::req);
+    socket.connect("tcp://localhost:5555");
+    std::string msg = "Hello";
+    socket.send(zmq::buffer(msg), zmq::send_flags::none);
+    zmq::message_t reply;
+    socket.recv(reply, zmq::recv_flags::none);
+    std::cout << "Received: " << reply.to_string() << std::endl;
+}
+```
+
+---
+如需扩展更复杂的通信模式、自动化测试或集成 CI/CD，可在此基础上继续完善。
