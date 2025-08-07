@@ -104,4 +104,30 @@ BUILD - Bazel 构建配置
 如何管理依赖关系
 ```
 
-头文件未找到这个问题似乎很难解决。
+# Bazel C++ 工业化项目头文件 include 路径最佳实践
+
+1. 每个库的头文件放在本 package 的 include 子目录下，如：
+   - lib/util/include/util/str_utils.h
+   - lib/core/include/core/greeter.h
+2. BUILD 文件这样写：
+   ```python
+   cc_library(
+       name = "str_utils",
+       srcs = ["str_utils.cpp"],
+       hdrs = ["include/util/str_utils.h"],
+       includes = ["include"],
+       visibility = ["//visibility:public"],
+   )
+   ```
+3. 代码中直接：
+   ```cpp
+   #include "util/str_utils.h"
+   #include "core/greeter.h"
+   ```
+4. 这样 include 路径简洁、跨 package 依赖清晰，且不会出现头文件找不到的问题。
+
+5. 推荐所有库都采用这种结构，避免头文件全局乱放。
+
+6. 如果有第三方依赖，统一放在 third_party/，并用 Bazel 的外部依赖机制管理。
+
+这样你的 include 路径就会非常简洁，项目结构也更易维护。

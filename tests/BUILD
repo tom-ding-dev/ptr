@@ -1,6 +1,5 @@
 cc_test(
-    name = "test_hello",
-    srcs = ["test_hello.cpp"],
-    includes = ["src/include"],
-    deps = ["//src:main"],
+    name = "str_utils_test",
+    srcs = ["str_utils_test.cpp"],
+    deps = ["//lib/util:str_utils"],
 )
