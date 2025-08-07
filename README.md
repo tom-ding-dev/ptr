@@ -203,3 +203,75 @@ int main() {
 
 ---
 如需扩展更复杂的通信模式、自动化测试或集成 CI/CD，可在此基础上继续完善。
+
+
+# 【进阶】ZeroMQ 动态库（so）与 Bazel 工业化集成与部署
+
+## 步骤一：用 CMake 构建 libzmq.so
+
+```sh
+cd third_party/zmq
+mkdir build && cd build
+cmake .. -DBUILD_SHARED=ON
+make -j
+# 生成的 libzmq.so 一般在 build/lib 或 build/ 目录下
+```
+
+## 步骤二：拷贝 so 和 include 到 third_party
+- 将 `build/libzmq.so` 拷贝到 `third_party/zmq/libzmq.so`
+- 保留 `third_party/zmq/include` 目录（ZeroMQ 头文件）
+
+## 步骤三：Bazel 配置
+
+third_party/zmq/BUILD:
+```python
+cc_import(
+    name = "zmq_so",
+    shared_library = "libzmq.so",
+    hdrs = glob(["include/**/*.h", "include/**/*.hpp"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+```
+
+third_party/BUILD:
+```python
+cc_library(
+    name = "cppzmq",
+    hdrs = glob(["cppzmq/*.hpp"]),
+    includes = ["cppzmq"],
+    visibility = ["//visibility:public"],
+    deps = ["//third_party/zmq:zmq_so"],
+)
+```
+
+app/BUILD:
+```python
+cc_binary(
+    name = "server",
+    srcs = ["server.cpp"],
+    deps = ["//third_party:cppzmq"],
+    linkopts = ["-Wl,-rpath,$$ORIGIN/../third_party/zmq"],
+)
+cc_binary(
+    name = "client",
+    srcs = ["client.cpp"],
+    deps = ["//third_party:cppzmq"],
+    linkopts = ["-Wl,-rpath,$$ORIGIN/../third_party/zmq"],
+)
+```
+
+## 步骤四：部署
+
+1. 拷贝 `bazel-bin/app/server`、`bazel-bin/app/client` 和 `third_party/zmq/libzmq.so` 到目标环境，保持相对目录结构。
+2. 运行时无需系统安装 ZeroMQ，直接运行即可。
+
+---
+这样即可实现完全自包含、可复现、易部署的现代 C++/Bazel/ZeroMQ 工业化项目！
+
+# 跨平台 C++ 第三方库集成方式
+
+这是工业界最常用、最稳妥的跨平台 C++ 第三方库集成方式
+
+
+
