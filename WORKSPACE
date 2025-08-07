@@ -1,2 +1,2 @@
 # WORKSPACE
-workspace(name = "my_calculator_project")
+workspace(name = "my_cpp_project")
