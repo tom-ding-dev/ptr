@@ -85,3 +85,23 @@ cc_binary(
 这样执行：export PATH="$PATH:/home/codespace/bin" && bazel build //src:main 可以通过
 
 # 接下来的尝试，将 hello.h 放到 include 目录下
+
+看起来是废了，
+
+```
+项目现在的结构是：
+
+hello.cpp - 包含库实现
+hello.h - 头文件
+main.cpp - 主程序
+hello_test.cpp - 单元测试
+BUILD - Bazel 构建配置
+这是一个完整的 Bazel C++ 项目示例，展示了：
+
+如何组织代码结构
+如何定义和使用库
+如何编写和运行测试
+如何管理依赖关系
+```
+
+头文件未找到这个问题似乎很难解决。

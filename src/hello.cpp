@@ -1,4 +1,4 @@
-#include "hello.h"
+#include "include/hello.h"
 
 std::string hello() {
     return "Hello, Bazel!";
