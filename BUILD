@@ -1,3 +1,14 @@
+cc_binary(
+    name = "http_server",
+    srcs = ["http_server.cpp"],
+    deps = ["//third_party/cpp-httplib:httplib"],
+)
+
+cc_binary(
+    name = "http_client",
+    srcs = ["http_client.cpp"],
+    deps = ["//third_party/cpp-httplib:httplib"],
+)
 # load("@com_google_googletest//:gtest.bzl", "gtest_binary")
 
 # gtest_binary(
@@ -12,19 +23,21 @@ cc_library(
     srcs = [
         "src/person.cpp",
         "src/student.cpp",
+        "src/json_utils.cpp"
     ],
     hdrs = [
         "include/mylib/person.h",
         "include/mylib/student.h",
         "include/mylib/utils.h",
+        "include/mylib/json_utils.h",
     ],
     includes = ["include"],
     visibility = ["//visibility:public"],
-    deps = ["@jsoncpp//:jsoncpp"],
+    deps = ["//third_party/jsoncpp:jsoncpp"],
 )
 
 cc_binary(
     name = "main",
     srcs = ["main.cpp"],
-    deps = [":person_lib", "@jsoncpp//:jsoncpp"],
+    deps = [":person_lib", "//third_party/jsoncpp:jsoncpp"],
 )
